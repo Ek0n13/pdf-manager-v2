@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { chooseDirectory, getSubDirectories } from './main'
 
 let mainWindow: BrowserWindow | null = null
 function createWindow(): void {
@@ -72,6 +73,8 @@ const readyFunction = (): void => {
   })
 
   // ipc functions
+  ipcMain.handle('choose-directory', chooseDirectory)
+  ipcMain.handle('get-sub-directories', getSubDirectories)
 }
 
 // 1. Request the lock

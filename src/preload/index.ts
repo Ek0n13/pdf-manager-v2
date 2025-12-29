@@ -1,8 +1,14 @@
-import { contextBridge } from 'electron'
+import { contextBridge, IpcMainInvokeEvent, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
-const api = {}
+export const api = {
+  chooseDirectory: async (): Promise<string | null> => ipcRenderer.invoke('choose-directory'),
+  getSubDirectories: async (
+    _event: IpcMainInvokeEvent,
+    parentDirectory: string
+  ): Promise<string[] | null> => ipcRenderer.invoke('get-sub-directories', _event, parentDirectory)
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
