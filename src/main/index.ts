@@ -1,13 +1,16 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+let mainWindow: BrowserWindow | null = null
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+  mainWindow = new BrowserWindow({
+    // width: 896,
+    // height: 504,
+    width: 576,
+    height: 1024,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -18,7 +21,8 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    mainWindow?.show()
+    // mainWindow.maximize()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -33,12 +37,19 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  mainWindow.on('close', (event) => {
+    const dialogResult = promptDialog('Are you sure you want to quit?')
+    // if user chose no, do not close
+    if (!dialogResult) event.preventDefault()
+  })
+
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+const readyFunction = (): void => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
@@ -59,7 +70,33 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
-})
+
+  // ipc functions
+}
+
+// 1. Request the lock
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  // 2. If we didn't get the lock, quit this new instance immediately
+  app.quit()
+} else {
+  // 3. We have the lock! Listen for the 'second-instance' event
+  app.on('second-instance', () => {
+    // Someone tried to run a second instance, focus our existing window
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+      // Optional: You can handle commandLine arguments here if needed
+    }
+  })
+
+  // 4. Continue with your standard initialization
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+  // Some APIs can only be used after this event occurs.
+  app.whenReady().then(readyFunction)
+}
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -72,3 +109,18 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// returns true if "yes"
+export const promptDialog = (msg: string): boolean => {
+  const dialogResult = dialog.showMessageBoxSync({
+    message: msg,
+
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    defaultId: 0,
+    cancelId: 1,
+    title: 'Confirm'
+  })
+
+  return dialogResult === 0
+}
