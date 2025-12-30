@@ -1,13 +1,14 @@
-import { contextBridge, IpcMainInvokeEvent, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import type { PathFullPath } from '../main/main'
 
 // Custom APIs for renderer
 export const api = {
   chooseDirectory: async (): Promise<string | null> => ipcRenderer.invoke('choose-directory'),
-  getSubDirectories: async (
-    _event: IpcMainInvokeEvent,
-    parentDirectory: string
-  ): Promise<string[] | null> => ipcRenderer.invoke('get-sub-directories', _event, parentDirectory)
+  getSubDirectories: async (parentDirectory: string): Promise<PathFullPath[] | null> =>
+    ipcRenderer.invoke('get-sub-directories', parentDirectory),
+  getPdfList: async (directory: string): Promise<PathFullPath[] | null> =>
+    ipcRenderer.invoke('get-pdf-list', directory)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
