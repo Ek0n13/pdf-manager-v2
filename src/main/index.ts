@@ -2,16 +2,22 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { chooseDirectory, getSubDirectories } from './main'
+import {
+  chooseDirectory,
+  getPdfFiles,
+  getSubDirectories,
+  openExternal,
+  openFile,
+  readPdfFile,
+  revealInFolder
+} from './main'
 
 let mainWindow: BrowserWindow | null = null
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    // width: 896,
-    // height: 504,
-    width: 576,
-    height: 1024,
+    width: 1200,
+    height: 800,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -75,6 +81,11 @@ const readyFunction = (): void => {
   // ipc functions
   ipcMain.handle('choose-directory', chooseDirectory)
   ipcMain.handle('get-sub-directories', getSubDirectories)
+  ipcMain.handle('get-pdf-files', getPdfFiles)
+  ipcMain.handle('read-pdf-file', readPdfFile)
+  ipcMain.handle('open-external', openExternal)
+  ipcMain.handle('open-file', openFile)
+  ipcMain.handle('reveal-in-folder', revealInFolder)
 }
 
 // 1. Request the lock
