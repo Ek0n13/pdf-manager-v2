@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { chooseDirectory, getPdfList, getSubDirectories, dbGetUsers } from './main'
 import { customHandle } from './tools'
+import { registerPdfProtocol } from './pdf'
 
 let mainWindow: BrowserWindow | null = null
 function createWindow(): void {
@@ -65,6 +66,7 @@ const readyFunction = (): void => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  registerPdfProtocol()
   createWindow()
 
   app.on('activate', function () {
@@ -77,6 +79,7 @@ const readyFunction = (): void => {
   customHandle('choose-directory', chooseDirectory)
   customHandle('get-sub-directories', getSubDirectories)
   customHandle('get-pdf-list', getPdfList)
+  // customHandle('get-pdf-bytes', getPdfBytes)
   customHandle('db:get-users', dbGetUsers)
 }
 

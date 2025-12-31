@@ -65,6 +65,9 @@
     "onlyBuiltDependencies": [
       "electron",
       "esbuild"
-    ]
+    ],
+    "overrides": {
+      "pdfjs-dist": "5.4.296"
+    }
   }
 }

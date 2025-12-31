@@ -1,10 +1,27 @@
 import type { PathFullPath } from '@shared/types'
 import { ScrollAreaCustom } from './ScrollAreaCustom'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from './ui/dialog'
 import { User } from '@shared/types'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Spinner } from './ui/spinner'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from './ui/input-group'
+// import { Document, Page, pdfjs } from 'react-pdf'
+
+// import 'react-pdf/dist/Page/TextLayer.css'
+// import 'react-pdf/dist/Page/AnnotationLayer.css'
+
+// Vite-friendly worker wiring (ESM)
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//   'pdfjs-dist/build/pdf.worker.min.mjs',
+//   import.meta.url
+// ).toString()
 
 export function RightPanel({
   parentDir,
@@ -16,6 +33,8 @@ export function RightPanel({
   const [userList, setUserList] = useState<User[] | null>(null)
   const [loadingUserList, setLoadingUserList] = useState<boolean>(true)
 
+  // const [userLastPlayed, setUserLastPlayed] = useState<string>('')
+
   const dbGetUsers = useCallback(async () => {
     const response = await window.api.dbGetUsers()
     setUserList(response)
@@ -23,6 +42,7 @@ export function RightPanel({
 
     setLoadingUserList(false)
   }, [])
+
   // no idea why adding "min-h-0" to the parent div works
   return (
     <div className="min-h-0 w-full flex flex-col">
@@ -92,7 +112,7 @@ export function RightPanel({
           <div key={dir.fullPath} className="py-2 min-w-0 flex justify-between truncate">
             <span>{dir.path}</span>
             <div className="text-blue-600 flex gap-2 text-xl">
-              <PdfDialog />
+              <PdfDialog fileName={dir.path} filePath={dir.fullPath} />
               <button type="button" className="cursor-pointer">
                 <i className="fa-solid fa-floppy-disk" />
               </button>
@@ -107,20 +127,45 @@ export function RightPanel({
   )
 }
 
-function PdfDialog(): React.JSX.Element {
+function PdfDialog({
+  filePath,
+  fileName,
+  ...props
+}: { filePath: string; fileName: string } & React.ComponentProps<
+  typeof Dialog
+>): React.JSX.Element {
+  const pdfUrl = useMemo(() => `app-pdf://local?path=${encodeURIComponent(filePath)}`, [filePath])
+
   return (
-    <Dialog>
+    <Dialog {...props}>
       <DialogTrigger asChild>
         <button type="button" className="cursor-pointer">
           <i className="fa-solid fa-file-pdf" />
         </button>
       </DialogTrigger>
 
-      <DialogContent className="min-h-[98%] min-w-[98%] bg-gray-200 **:data-[slot=dialog-close]:cursor-pointer">
-        <DialogHeader>
-          <DialogTitle>User List</DialogTitle>
+      <DialogContent className="h-[98vh] min-w-[94vw] p-0 gap-0 flex flex-col overflow-hidden bg-gray-200 **:data-[slot=dialog-close]:cursor-pointer">
+        <DialogHeader className="border-b-2 w-full p-4">
+          <DialogTitle className="flex gap-4 divide-x-2">
+            <button type="button" className="cursor-pointer pr-4 text-blue-600">
+              {fileName}
+            </button>
+            <button
+              type="button"
+              className="cursor-pointer origin-center scale-150 rounded-md text-red-600 hover:text-blue-600"
+            >
+              <i className="fa-brands fa-youtube " />
+            </button>
+          </DialogTitle>
         </DialogHeader>
-        <span>hello</span>
+        <DialogDescription></DialogDescription>
+        <div className="flex-1 h-full w-full rounded-b-md">
+          <embed
+            src={`${pdfUrl}#toolbar=0&view=FitH`}
+            type="application/pdf"
+            className="h-full w-full"
+          />
+        </div>
       </DialogContent>
     </Dialog>
   )

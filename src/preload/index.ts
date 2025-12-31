@@ -9,6 +9,8 @@ export const api = {
     ipcRenderer.invoke('get-sub-directories', parentDirectory),
   getPdfList: async (directory: string): Promise<PathFullPath[] | null> =>
     ipcRenderer.invoke('get-pdf-list', directory),
+  getPdfBytes: async (filePath: string): Promise<Uint8Array> =>
+    ipcRenderer.invoke('get-pdf-bytes', filePath),
   dbGetUsers: async (): Promise<User[] | null> => ipcRenderer.invoke('db:get-users')
 }
 

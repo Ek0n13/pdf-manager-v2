@@ -1,4 +1,4 @@
-import { dialog } from 'electron'
+import { dialog, shell } from 'electron'
 import { readdir } from 'fs/promises'
 import { statSync } from 'fs'
 import { join } from 'path'
@@ -78,6 +78,19 @@ export async function getPdfList(directory: string): Promise<PathFullPath[] | nu
     return null
   }
 }
+
+export async function openLocalPath(filePath: string): Promise<void> {
+  try {
+    await shell.openPath(filePath)
+  } catch (error) {
+    errorDialog(`${error}`)
+  }
+}
+
+// export async function getPdfBytes(filePath: string): Promise<Uint8Array> {
+//   const buffer = await readFile(filePath)
+//   return new Uint8Array(buffer)
+// }
 
 export async function dbGetUsers(): Promise<User[] | null> {
   try {
