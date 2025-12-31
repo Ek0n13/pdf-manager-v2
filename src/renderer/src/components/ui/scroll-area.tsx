@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
 
 import { cn } from '@renderer/lib/utils'
-// [&>div]:block!
+// added this: [&>div]:block!
 function ScrollArea({
   className,
   children,

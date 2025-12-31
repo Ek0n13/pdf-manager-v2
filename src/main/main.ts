@@ -2,22 +2,9 @@ import { dialog } from 'electron'
 import { readdir } from 'fs/promises'
 import { statSync } from 'fs'
 import { join } from 'path'
-
-export type PathFullPath = {
-  path: string
-  fullPath: string
-}
-
-type Result<T, E = unknown> = readonly [data: T, error: null] | readonly [data: null, error: E]
-
-async function tryCatch<T, E = unknown>(fn: () => T | Promise<T>): Promise<Result<T, E>> {
-  try {
-    const data = await fn()
-    return [data, null] as const
-  } catch (error) {
-    return [null, error as E] as const
-  }
-}
+import { tryCatch } from './tools'
+import type { PathFullPath, User } from '../shared/types'
+import { getUsers } from './oracledb'
 
 function errorDialog(msg: string): void {
   dialog.showMessageBoxSync({
@@ -86,6 +73,18 @@ export async function getPdfList(directory: string): Promise<PathFullPath[] | nu
     }))
 
     return result ?? null
+  } catch (error) {
+    errorDialog(`${error}`)
+    return null
+  }
+}
+
+export async function dbGetUsers(): Promise<User[] | null> {
+  try {
+    const [data, error] = await tryCatch(() => getUsers())
+    if (error) throw new Error(`${error}`)
+
+    return data
   } catch (error) {
     errorDialog(`${error}`)
     return null

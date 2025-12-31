@@ -2,8 +2,8 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { chooseDirectory, getPdfList, getSubDirectories } from './main'
-import { customHandle } from './ipc'
+import { chooseDirectory, getPdfList, getSubDirectories, dbGetUsers } from './main'
+import { customHandle } from './tools'
 
 let mainWindow: BrowserWindow | null = null
 function createWindow(): void {
@@ -77,6 +77,7 @@ const readyFunction = (): void => {
   customHandle('choose-directory', chooseDirectory)
   customHandle('get-sub-directories', getSubDirectories)
   customHandle('get-pdf-list', getPdfList)
+  customHandle('db:get-users', dbGetUsers)
 }
 
 // 1. Request the lock
