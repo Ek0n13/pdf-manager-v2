@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import type { PathFullPath, User } from '../shared/types'
+import type { PathFullPath, User, UserLastPlayed } from '../shared/types'
 
 // Custom APIs for renderer
 export const api = {
@@ -11,7 +11,17 @@ export const api = {
     ipcRenderer.invoke('get-pdf-list', directory),
   getPdfBytes: async (filePath: string): Promise<Uint8Array> =>
     ipcRenderer.invoke('get-pdf-bytes', filePath),
-  dbGetUsers: async (): Promise<User[] | null> => ipcRenderer.invoke('db:get-users')
+  ytSearchFilename: async (fileName: string): Promise<void> =>
+    ipcRenderer.invoke('yt:search-filename', fileName),
+  renameFile: async (oldFilePath: string, newFileName: string): Promise<void> =>
+    ipcRenderer.invoke('rename-file', oldFilePath, newFileName),
+  dbGetUsers: async (): Promise<User[] | null> => ipcRenderer.invoke('db:get-users'),
+  dbGetUserLastPlayed: async (userId: User['ID']): Promise<UserLastPlayed | null> =>
+    ipcRenderer.invoke('db:get-user-last-played', userId),
+  dbSaveUserLastPlayed: async (
+    userId: UserLastPlayed['ID'],
+    lastPlayed: UserLastPlayed['LAST_PLAYED']
+  ): Promise<boolean> => ipcRenderer.invoke('db:save-user-last-played', userId, lastPlayed)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

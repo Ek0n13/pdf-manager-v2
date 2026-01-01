@@ -1,15 +1,22 @@
 import { ScrollArea } from './ui/scroll-area'
+import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
 
-export function ScrollAreaCustom({
+function ScrollAreaCustom({
   className,
-  children
+  children,
+  viewportRef,
+  removeHighlight
 }: {
   className: string
   children: React.ReactNode
-}): React.JSX.Element {
+  viewportRef?: React.Ref<HTMLDivElement>
+  removeHighlight?: () => void
+} & React.ComponentProps<typeof ScrollAreaPrimitive.Root>): React.JSX.Element {
   return (
     <div className={className}>
       <ScrollArea
+        viewportRef={viewportRef}
+        removeHighlight={removeHighlight}
         type="auto"
         className={`
         h-full
@@ -23,3 +30,5 @@ export function ScrollAreaCustom({
     </div>
   )
 }
+
+export default ScrollAreaCustom

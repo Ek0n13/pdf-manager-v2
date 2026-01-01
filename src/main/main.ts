@@ -1,10 +1,11 @@
 import { dialog, shell } from 'electron'
-import { readdir } from 'fs/promises'
-import { statSync } from 'fs'
-import { join } from 'path'
+import { readdir, rename } from 'fs/promises'
+import { statSync, existsSync } from 'fs'
+import { dirname, extname, format, join, parse } from 'path'
 import { tryCatch } from './tools'
-import type { PathFullPath, User } from '../shared/types'
-import { getUsers } from './oracledb'
+import type { PathFullPath, User, UserLastPlayed } from '../shared/types'
+import { getUserLastPlayed, getUsers, saveUserLastPlayed } from './oracledb'
+import { exec } from 'child_process'
 
 function errorDialog(msg: string): void {
   dialog.showMessageBoxSync({
@@ -13,6 +14,21 @@ function errorDialog(msg: string): void {
     type: 'error',
     title: 'Error!'
   })
+}
+
+// returns true if "yes"
+export const promptDialog = (msg: string): boolean => {
+  const dialogResult = dialog.showMessageBoxSync({
+    message: msg,
+
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    defaultId: 0,
+    cancelId: 1,
+    title: 'Confirm'
+  })
+
+  return dialogResult === 0
 }
 
 export async function chooseDirectory(): Promise<string | null> {
@@ -92,6 +108,63 @@ export async function openLocalPath(filePath: string): Promise<void> {
 //   return new Uint8Array(buffer)
 // }
 
+export async function ytSearchFilename(fileName: string): Promise<void> {
+  const msedgePath = join(
+    'C:',
+    'Program Files (x86)',
+    'Microsoft',
+    'Edge',
+    'Application',
+    'msedge.exe'
+  )
+
+  try {
+    const fileNameNoExt = parse(fileName).name.trim()
+    const searchString = fileNameNoExt
+      .replace(/&/g, '%26')
+      .replace(/'/g, '')
+      .replace(/"/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+      .replace(/ /g, '+') // specifically for searching in url params
+    const url = `https://www.youtube.com/results?search_query=${searchString}+hq`
+
+    if (!existsSync(msedgePath)) {
+      const result = dialog.showMessageBoxSync({
+        message: 'Microsoft Edge not found.\nOpen in default browser?',
+
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        defaultId: 0,
+        cancelId: 1,
+        title: 'Confirm Action'
+      })
+
+      if (result === 0) shell.openExternal(url)
+
+      return
+    }
+
+    exec(`"${msedgePath}" "${url}"`)
+  } catch (error) {
+    errorDialog(`${error}`)
+  }
+}
+
+export async function renameFile(oldFilePath: string, newFileName: string): Promise<void> {
+  try {
+    const isFile = statSync(oldFilePath).isFile()
+    if (!isFile) throw new Error('Path is not a file')
+
+    const parentDir = dirname(oldFilePath)
+    const extension = extname(oldFilePath)
+    const newFileNameExt = format({ name: newFileName, ext: extension })
+    await rename(oldFilePath, join(parentDir, newFileNameExt))
+  } catch (error) {
+    errorDialog(`${error}`)
+  }
+}
+
 export async function dbGetUsers(): Promise<User[] | null> {
   try {
     const [data, error] = await tryCatch(() => getUsers())
@@ -101,5 +174,34 @@ export async function dbGetUsers(): Promise<User[] | null> {
   } catch (error) {
     errorDialog(`${error}`)
     return null
+  }
+}
+
+export async function dbGetUserLastPlayed(userId: User['ID']): Promise<UserLastPlayed | null> {
+  try {
+    const [data, error] = await tryCatch(() => getUserLastPlayed(userId))
+    if (error) throw new Error(`${error}`)
+
+    return data
+  } catch (error) {
+    errorDialog(`${error}`)
+    return null
+  }
+}
+
+export async function dbSaveUserLastPlayed(
+  userId: UserLastPlayed['ID'],
+  lastPlayed: UserLastPlayed['LAST_PLAYED']
+): Promise<boolean> {
+  try {
+    const result = promptDialog('Save last played?')
+    if (result) {
+      await saveUserLastPlayed(userId, lastPlayed)
+      return true
+    }
+    return false
+  } catch (error) {
+    errorDialog(`${error}`)
+    return false
   }
 }

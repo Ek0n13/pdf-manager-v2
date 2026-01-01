@@ -1,8 +1,18 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { chooseDirectory, getPdfList, getSubDirectories, dbGetUsers } from './main'
+import {
+  promptDialog,
+  chooseDirectory,
+  getPdfList,
+  getSubDirectories,
+  dbGetUsers,
+  ytSearchFilename,
+  dbGetUserLastPlayed,
+  dbSaveUserLastPlayed,
+  renameFile
+} from './main'
 import { customHandle } from './tools'
 import { registerPdfProtocol } from './pdf'
 
@@ -80,7 +90,11 @@ const readyFunction = (): void => {
   customHandle('get-sub-directories', getSubDirectories)
   customHandle('get-pdf-list', getPdfList)
   // customHandle('get-pdf-bytes', getPdfBytes)
+  customHandle('yt:search-filename', ytSearchFilename)
+  customHandle('rename-file', renameFile)
   customHandle('db:get-users', dbGetUsers)
+  customHandle('db:get-user-last-played', dbGetUserLastPlayed)
+  customHandle('db:save-user-last-played', dbSaveUserLastPlayed)
 }
 
 // 1. Request the lock
@@ -118,18 +132,3 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-
-// returns true if "yes"
-export const promptDialog = (msg: string): boolean => {
-  const dialogResult = dialog.showMessageBoxSync({
-    message: msg,
-
-    type: 'question',
-    buttons: ['Yes', 'No'],
-    defaultId: 0,
-    cancelId: 1,
-    title: 'Confirm'
-  })
-
-  return dialogResult === 0
-}
