@@ -165,6 +165,23 @@ export async function renameFile(oldFilePath: string, newFileName: string): Prom
   }
 }
 
+export async function deleteFile(pathFullPath: PathFullPath): Promise<boolean> {
+  try {
+    const { path, fullPath } = pathFullPath
+    const isFile = statSync(fullPath).isFile()
+    if (!isFile) throw new Error('Path is not a file')
+
+    const result = promptDialog(`Delete file: ${path}?`)
+    if (!result) return false
+
+    await shell.trashItem(fullPath)
+    return true
+  } catch (error) {
+    errorDialog(`${error}`)
+    return false
+  }
+}
+
 export async function dbGetUsers(): Promise<User[] | null> {
   try {
     const [data, error] = await tryCatch(() => getUsers())
@@ -195,11 +212,10 @@ export async function dbSaveUserLastPlayed(
 ): Promise<boolean> {
   try {
     const result = promptDialog('Save last played?')
-    if (result) {
-      await saveUserLastPlayed(userId, lastPlayed)
-      return true
-    }
-    return false
+    if (!result) return false
+
+    await saveUserLastPlayed(userId, lastPlayed)
+    return true
   } catch (error) {
     errorDialog(`${error}`)
     return false

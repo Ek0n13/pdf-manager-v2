@@ -56,14 +56,27 @@ function RightPanel({
   const handleSaveUserLastPlayed = useCallback(
     async (lastPlayed: string) => {
       try {
-        const saveHappened = await window.api.dbSaveUserLastPlayed(currentUserId, lastPlayed)
-        if (saveHappened) setCurrentUserLastPlayed(lastPlayed)
+        const actionHappened = await window.api.dbSaveUserLastPlayed(currentUserId, lastPlayed)
+        if (actionHappened) setCurrentUserLastPlayed(lastPlayed)
       } catch (error) {
         console.error(error)
         return
       }
     },
     [currentUserId]
+  )
+
+  const handleDeleteFile = useCallback(
+    async (pathFullPath: PathFullPath) => {
+      try {
+        const actionHappened = await window.api.deleteFile(pathFullPath)
+        if (actionHappened) reloadPdfList()
+      } catch (error) {
+        console.error(error)
+        return
+      }
+    },
+    [reloadPdfList]
   )
 
   const handleDialogOpen = useCallback(
@@ -197,7 +210,11 @@ function RightPanel({
               >
                 <i className="fa-solid fa-floppy-disk" />
               </button>
-              <button type="button" className="cursor-pointer">
+              <button
+                type="button"
+                className="cursor-pointer"
+                onClick={() => handleDeleteFile(dir)}
+              >
                 <i className="fa-solid fa-trash-can" />
               </button>
             </div>

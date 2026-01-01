@@ -11,7 +11,8 @@ import {
   ytSearchFilename,
   dbGetUserLastPlayed,
   dbSaveUserLastPlayed,
-  renameFile
+  renameFile,
+  deleteFile
 } from './main'
 import { customHandle } from './tools'
 import { registerPdfProtocol } from './pdf'
@@ -35,7 +36,7 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
-    // mainWindow.maximize()
+    mainWindow?.maximize()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -91,7 +92,8 @@ const readyFunction = (): void => {
   customHandle('get-pdf-list', getPdfList)
   // customHandle('get-pdf-bytes', getPdfBytes)
   customHandle('yt:search-filename', ytSearchFilename)
-  customHandle('rename-file', renameFile)
+  customHandle('file:rename', renameFile)
+  customHandle('file:delete', deleteFile)
   customHandle('db:get-users', dbGetUsers)
   customHandle('db:get-user-last-played', dbGetUserLastPlayed)
   customHandle('db:save-user-last-played', dbSaveUserLastPlayed)

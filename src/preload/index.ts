@@ -14,7 +14,9 @@ export const api = {
   ytSearchFilename: async (fileName: string): Promise<void> =>
     ipcRenderer.invoke('yt:search-filename', fileName),
   renameFile: async (oldFilePath: string, newFileName: string): Promise<void> =>
-    ipcRenderer.invoke('rename-file', oldFilePath, newFileName),
+    ipcRenderer.invoke('file:rename', oldFilePath, newFileName),
+  deleteFile: async (pathFullPath: PathFullPath): Promise<boolean> =>
+    ipcRenderer.invoke('file:delete', pathFullPath),
   dbGetUsers: async (): Promise<User[] | null> => ipcRenderer.invoke('db:get-users'),
   dbGetUserLastPlayed: async (userId: User['ID']): Promise<UserLastPlayed | null> =>
     ipcRenderer.invoke('db:get-user-last-played', userId),
