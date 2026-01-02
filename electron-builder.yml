@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.ekon13.pdfmanagerv2
 productName: pdf-manager-v2
 directories:
   buildResources: build
@@ -39,5 +39,9 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  # provider: generic
+  # url: https://example.com/auto-updates
+  - provider: github
+    owner: Ek0n13
+    repo: pdf-manager-v2
+    releaseType: release
