@@ -22,7 +22,6 @@ function App(): React.JSX.Element {
   const handleGetSubDirectories = useCallback(async () => {
     if (!currentParentDirectory) return
     const dirs = await window.api.getSubDirectories(currentParentDirectory)
-    console.log(dirs)
     if (!dirs) return
     // setCurrentSubDirectories(dirs)
     setCurrentSubDirectories(Array(1).fill(dirs).flat())

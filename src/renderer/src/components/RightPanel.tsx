@@ -1,21 +1,13 @@
 import type { PathFullPath } from '@shared/types'
 import { useCallback, useRef, useState } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from './ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
 import { User } from '@shared/types'
 import { Spinner } from './ui/spinner'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from './ui/input-group'
 import { Button } from './ui/button'
-import { ContextMenuItem } from './ui/context-menu'
 import ScrollAreaCustom from './ScrollAreaCustom'
 import PdfDialog from './PdfDialog'
-import ContextMenuCustom from './ContextMenuCustom'
+import RenameFunc from './RenameFunc'
 
 function RightPanel({
   parentDir,
@@ -34,6 +26,7 @@ function RightPanel({
   const [currentUserLastPlayed, setCurrentUserLastPlayed] = useState<string>('<none>')
 
   const pdfRefs = useRef(new Map<string, HTMLDivElement>())
+  const removeHighlightFired = useRef<boolean>(false)
 
   const handleDbGetUsers = useCallback(async () => {
     const response = await window.api.dbGetUsers()
@@ -97,8 +90,16 @@ function RightPanel({
   }, [currentUserLastPlayed])
 
   const removeHighlight = useCallback(() => {
+    if (removeHighlightFired.current) return
+
     const element = pdfRefs.current.get(currentUserLastPlayed)
-    if (element) setTimeout(() => element?.classList.remove('bg-red-400'), 5000)
+    if (element) {
+      removeHighlightFired.current = true
+      setTimeout(() => {
+        element?.classList.remove('bg-red-400')
+        removeHighlightFired.current = false
+      }, 5000)
+    }
   }, [currentUserLastPlayed])
 
   // no idea why adding "min-h-0" to the parent div works
@@ -200,69 +201,6 @@ function RightPanel({
         ))}
       </ScrollAreaCustom>
     </div>
-  )
-}
-
-function RenameFunc({
-  dirs,
-  reloadPdfList
-}: {
-  dirs: PathFullPath
-  reloadPdfList: () => Promise<void>
-}): React.JSX.Element {
-  const [renameDialogOpen, setRenameDialogOpen] = useState<boolean>(false)
-  const [currentNewName, setCurrentNewName] = useState<string>(dirs.path.replace(/\.pdf$/, ''))
-
-  const handleRenameFile = useCallback(async () => {
-    try {
-      await window.api.renameFile(dirs.fullPath, currentNewName)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setRenameDialogOpen(false)
-      reloadPdfList()
-    }
-  }, [dirs.fullPath, currentNewName, reloadPdfList])
-
-  return (
-    <>
-      <ContextMenuCustom label={dirs.path}>
-        <ContextMenuItem
-          className="hover:bg-gray-100"
-          onClick={() => {
-            setRenameDialogOpen(true)
-          }}
-        >
-          Rename
-        </ContextMenuItem>
-      </ContextMenuCustom>
-
-      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
-        <DialogContent className="bg-gray-200">
-          <DialogHeader>
-            <DialogTitle>{`Rename File: ${dirs.path}`}</DialogTitle>
-          </DialogHeader>
-          <DialogDescription>{`Enter new file name (without extension)`}</DialogDescription>
-          <InputGroup className="bg-white">
-            <InputGroupInput
-              placeholder="Rename file to..."
-              value={currentNewName}
-              onChange={(e) => setCurrentNewName(e.target.value.trim())}
-            />
-            <InputGroupAddon align="inline-end">
-              <InputGroupButton
-                variant="default"
-                className="cursor-pointer rounded-md text-white bg-black"
-                disabled={!currentNewName}
-                onClick={handleRenameFile}
-              >
-                Rename
-              </InputGroupButton>
-            </InputGroupAddon>
-          </InputGroup>
-        </DialogContent>
-      </Dialog>
-    </>
   )
 }
 
