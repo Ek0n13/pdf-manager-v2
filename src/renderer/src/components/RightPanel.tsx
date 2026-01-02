@@ -34,7 +34,6 @@ function RightPanel({
   const [currentUserLastPlayed, setCurrentUserLastPlayed] = useState<string>('<none>')
 
   const pdfRefs = useRef(new Map<string, HTMLDivElement>())
-  const viewportRef = useRef<HTMLDivElement | null>(null)
 
   const handleDbGetUsers = useCallback(async () => {
     const response = await window.api.dbGetUsers()
@@ -91,20 +90,10 @@ function RightPanel({
   )
 
   const handleScrollToElement = useCallback(() => {
-    const viewport = viewportRef.current
     const element = pdfRefs.current.get(currentUserLastPlayed)
-    if (!viewport || !element) return
-
-    // Compute element top relative to viewport scroll container
-    // MUST BE element.top MINUS viewport.top
-    const delta = element.getBoundingClientRect().top - viewport.getBoundingClientRect().top
-
-    // element.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    if (!element) return
     element.classList.add('bg-red-400')
-    viewport.scrollTo({
-      top: viewport.scrollTop + delta,
-      behavior: 'smooth'
-    })
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [currentUserLastPlayed])
 
   const removeHighlight = useCallback(() => {
@@ -130,7 +119,6 @@ function RightPanel({
             <Dialog open={userDialogOpen} onOpenChange={handleDialogOpen}>
               <DialogTrigger asChild>
                 <button type="button" className="cursor-pointer text-blue-600">
-                  {/* <pre>GET</pre> */}
                   <i className="fa-solid fa-download" />
                 </button>
               </DialogTrigger>
@@ -178,7 +166,6 @@ function RightPanel({
         </div>
       </div>
       <ScrollAreaCustom
-        viewportRef={viewportRef}
         removeHighlight={removeHighlight}
         className="h-full w-full p-2 flex-1 overflow-hidden"
       >
@@ -189,16 +176,7 @@ function RightPanel({
               if (!node) pdfRefs.current.delete(dir.path)
               else pdfRefs.current.set(dir.path, node)
             }}
-            className={[
-              'py-2',
-              'pl-1',
-              'min-w-0',
-              'flex',
-              'justify-between',
-              'truncate',
-              'transition-colors',
-              'duration-300'
-            ].join(' ')}
+            className="py-2 pl-1 min-w-0 flex justify-between truncate transition-colors duration-300"
           >
             <RenameFunc dirs={dir} reloadPdfList={reloadPdfList} />
             <div className="text-blue-600 flex gap-2 text-xl">
