@@ -25,7 +25,7 @@ function App(): React.JSX.Element {
     console.log(dirs)
     if (!dirs) return
     // setCurrentSubDirectories(dirs)
-    setCurrentSubDirectories(Array(20).fill(dirs).flat())
+    setCurrentSubDirectories(Array(1).fill(dirs).flat())
   }, [currentParentDirectory])
 
   const handleGetPdfList = useCallback(async (directory: string) => {

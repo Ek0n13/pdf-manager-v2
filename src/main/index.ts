@@ -16,6 +16,7 @@ import {
 } from './main'
 import { customHandle } from './tools'
 import { registerPdfProtocol } from './pdf'
+import { initAutoUpdate } from './autoUpdate'
 
 let mainWindow: BrowserWindow | null = null
 function createWindow(): void {
@@ -79,6 +80,7 @@ const readyFunction = (): void => {
 
   registerPdfProtocol()
   createWindow()
+  initAutoUpdate()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
