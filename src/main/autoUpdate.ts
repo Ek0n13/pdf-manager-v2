@@ -1,4 +1,3 @@
-// src/main/autoUpdate.ts
 import { app, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'

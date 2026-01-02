@@ -4,9 +4,12 @@ import { User, UserLastPlayed } from '../shared/types'
 
 async function oracleConnection(): Promise<Connection> {
   return await getConnection({
-    user: import.meta.env['VITE_ORACLE_USER'],
-    password: import.meta.env['VITE_ORACLE_PW'],
-    connectionString: import.meta.env['VITE_ORACLE_CONN_STR']
+    // user: import.meta.env['VITE_ORACLE_USER'],
+    // password: import.meta.env['VITE_ORACLE_PW'],
+    // connectionString: import.meta.env['VITE_ORACLE_CONN_STR']
+    user: process.env['ORACLE_USER'],
+    password: process.env['ORACLE_PW'],
+    connectionString: process.env['ORACLE_CONN_STR']
   })
 }
 

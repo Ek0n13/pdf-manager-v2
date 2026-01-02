@@ -17,6 +17,7 @@ import {
 import { customHandle } from './tools'
 import { registerPdfProtocol } from './pdf'
 import { initAutoUpdate } from './autoUpdate'
+import { loadRuntimeEnv } from './env'
 
 let mainWindow: BrowserWindow | null = null
 function createWindow(): void {
@@ -78,6 +79,7 @@ const readyFunction = (): void => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  loadRuntimeEnv()
   registerPdfProtocol()
   createWindow()
   initAutoUpdate()
