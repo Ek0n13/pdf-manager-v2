@@ -3,7 +3,7 @@ import ContextMenuCustom from './ContextMenuCustom'
 import { ContextMenuItem } from './ui/context-menu'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from './ui/input-group'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 function RenameFunc({
   dirs,
@@ -12,12 +12,15 @@ function RenameFunc({
   dirs: PathFullPath
   reloadPdfList: () => Promise<void>
 }): React.JSX.Element {
+  const oldName = useMemo<string>(() => dirs.path.replace(/\.pdf$/, ''), [dirs])
+
   const [renameDialogOpen, setRenameDialogOpen] = useState<boolean>(false)
-  const [currentNewName, setCurrentNewName] = useState<string>(dirs.path.replace(/\.pdf$/, ''))
+  const [currentNewName, setCurrentNewName] = useState<string>(oldName)
 
   const handleRenameFile = useCallback(async () => {
     try {
-      await window.api.renameFile(dirs.fullPath, currentNewName)
+      const trimmedNewName = currentNewName.trim()
+      await window.api.renameFile(dirs.fullPath, trimmedNewName)
     } catch (error) {
       console.error(error)
     } finally {
@@ -39,17 +42,30 @@ function RenameFunc({
         </ContextMenuItem>
       </ContextMenuCustom>
 
-      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+      <Dialog
+        open={renameDialogOpen}
+        onOpenChange={(open) => {
+          setRenameDialogOpen(open)
+          setCurrentNewName(oldName)
+        }}
+      >
         <DialogContent className="bg-gray-200">
-          <DialogHeader>
-            <DialogTitle>{`Rename File: ${dirs.path}`}</DialogTitle>
+          <DialogHeader className="overflow-hidden text-ellipsis line-clamp-2">
+            <DialogTitle className="text-ellipsis line-clamp-2">{`Rename File: ${dirs.path}`}</DialogTitle>
           </DialogHeader>
           <DialogDescription>{`Enter new file name (without extension)`}</DialogDescription>
           <InputGroup className="bg-white">
             <InputGroupInput
+              spellCheck={false}
               placeholder="Rename file to..."
               value={currentNewName}
-              onChange={(e) => setCurrentNewName(e.target.value.trim())}
+              onChange={(e) => setCurrentNewName(e.target.value)}
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleRenameFile()
+                }
+              }}
             />
             <InputGroupAddon align="inline-end">
               <InputGroupButton

@@ -69,7 +69,7 @@ function App(): React.JSX.Element {
                   <div key={dir.fullPath} className="py-2 min-w-0 truncate">
                     <a
                       href="#"
-                      className="text-blue-600 font-bold"
+                      className="text-blue-600 font-bold text-shadow-xs hover:text-blue-500"
                       onClick={() => handleGetPdfList(dir.fullPath)}
                     >
                       {dir.path}

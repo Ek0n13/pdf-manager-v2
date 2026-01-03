@@ -6,15 +6,18 @@ import {
   DialogTitle,
   DialogTrigger
 } from './ui/dialog'
-import { useCallback, useMemo } from 'react'
+import { MouseEventHandler, useCallback, useMemo } from 'react'
 
 function PdfDialog({
   filePath,
   fileName,
+  pdfBtnOnClick,
   ...props
-}: { filePath: string; fileName: string } & React.ComponentProps<
-  typeof Dialog
->): React.JSX.Element {
+}: {
+  filePath: string
+  fileName: string
+  pdfBtnOnClick?: MouseEventHandler<HTMLButtonElement>
+} & React.ComponentProps<typeof Dialog>): React.JSX.Element {
   const pdfUrl = useMemo(() => `app-pdf://local?path=${encodeURIComponent(filePath)}`, [filePath])
 
   const handleYtSearchFilename = useCallback(async (fullPath: string) => {
@@ -24,12 +27,16 @@ function PdfDialog({
   return (
     <Dialog {...props}>
       <DialogTrigger asChild>
-        <button type="button" className="cursor-pointer">
+        <button
+          type="button"
+          className="cursor-pointer text-shadow-xs hover:text-blue-500"
+          onClick={pdfBtnOnClick}
+        >
           <i className="fa-solid fa-file-pdf" />
         </button>
       </DialogTrigger>
 
-      <DialogContent className="h-[98vh] min-w-[94vw] p-0 gap-0 flex flex-col overflow-hidden bg-gray-200 **:data-[slot=dialog-close]:cursor-pointer">
+      <DialogContent className="h-[98vh] min-w-[98vw] p-0 gap-0 flex flex-col overflow-hidden bg-gray-200 **:data-[slot=dialog-close]:cursor-pointer">
         <DialogHeader className="border-b-2 w-full p-4">
           <DialogTitle className="flex gap-4 divide-x-2">
             <button type="button" className="cursor-pointer pr-4 text-blue-600">

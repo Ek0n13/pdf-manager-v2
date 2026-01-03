@@ -25,6 +25,8 @@ function RightPanel({
   const [currentUserId, setCurrentUserId] = useState<number>(-1)
   const [currentUserLastPlayed, setCurrentUserLastPlayed] = useState<string>('<none>')
 
+  const [currentRow, setCurrentRow] = useState<HTMLDivElement | null>(null)
+
   const pdfRefs = useRef(new Map<string, HTMLDivElement>())
   const removeHighlightFired = useRef<boolean>(false)
 
@@ -102,16 +104,34 @@ function RightPanel({
     }
   }, [currentUserLastPlayed])
 
+  const handlePdfBtnClicked = useCallback(
+    (path: string) => {
+      if (currentRow) currentRow?.classList.remove('font-bold')
+
+      const clickedRow = pdfRefs.current.get(path)
+      if (!clickedRow) return
+
+      clickedRow?.classList.add('font-bold')
+      clickedRow.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setCurrentRow(clickedRow)
+    },
+    [currentRow]
+  )
+
   // no idea why adding "min-h-0" to the parent div works
   return (
     <div className="min-h-0 w-full flex flex-col">
       <div className="m-1 p-2 border-2 rounded-md text-center text-lg font-bold bg-gray-50">
         <pre className="truncate">{parentDir}</pre>
         <div className="divide-x-2 flex justify-center">
-          <div className="px-2">
-            <pre>
+          <div className="px-2 overflow-hidden">
+            <pre className="truncate">
               {`Latest: `}
-              <a href="#" className="text-blue-600" onClick={handleScrollToElement}>
+              <a
+                href="#"
+                className="text-blue-600 text-shadow-xs hover:text-blue-500"
+                onClick={handleScrollToElement}
+              >
                 {currentUserLastPlayed}
               </a>
             </pre>
@@ -119,7 +139,10 @@ function RightPanel({
           <div className="px-2 items-center">
             <Dialog open={userDialogOpen} onOpenChange={handleDialogOpen}>
               <DialogTrigger asChild>
-                <button type="button" className="cursor-pointer text-blue-600">
+                <button
+                  type="button"
+                  className="cursor-pointer text-blue-600 text-shadow-xs hover:text-blue-500"
+                >
                   <i className="fa-solid fa-download" />
                 </button>
               </DialogTrigger>
@@ -151,7 +174,7 @@ function RightPanel({
                       {userList?.map((user) => (
                         <div key={user.ID} className="min-w-0 truncate">
                           <Button
-                            className="p-0 cursor-pointer text-md text-blue-600 font-bold"
+                            className="p-0 cursor-pointer text-md font-bold text-blue-600 text-shadow-xs hover:text-blue-500"
                             onClick={() => handleDbGetUserLastPlayed(user.ID)}
                           >
                             {user.NAME}
@@ -181,17 +204,23 @@ function RightPanel({
           >
             <RenameFunc dirs={dir} reloadPdfList={reloadPdfList} />
             <div className="text-blue-600 flex gap-2 text-xl">
-              <PdfDialog fileName={dir.path} filePath={dir.fullPath} />
+              <PdfDialog
+                fileName={dir.path}
+                filePath={dir.fullPath}
+                pdfBtnOnClick={() => {
+                  handlePdfBtnClicked(dir.path)
+                }}
+              />
               <button
                 type="button"
-                className="cursor-pointer"
+                className="cursor-pointer text-shadow-xs hover:text-blue-500"
                 onClick={() => handleSaveUserLastPlayed(dir.path)}
               >
                 <i className="fa-solid fa-floppy-disk" />
               </button>
               <button
                 type="button"
-                className="cursor-pointer"
+                className="cursor-pointer text-shadow-xs hover:text-blue-500"
                 onClick={() => handleDeleteFile(dir)}
               >
                 <i className="fa-solid fa-trash-can" />
