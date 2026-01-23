@@ -29,6 +29,7 @@ function createWindow(): void {
     height: 1024,
     show: false,
     autoHideMenuBar: true,
+    titleBarStyle: 'hidden',
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -54,14 +55,21 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  mainWindow.on('close', (event) => {
-    const dialogResult = promptDialog('Are you sure you want to quit?')
-    // if user chose no, do not close
-    if (!dialogResult) event.preventDefault()
-  })
+  // mainWindow.on('close', (event) => {
+  //   const dialogResult = promptDialog('Are you sure you want to quit?')
+  //   // if user chose no, do not close
+  //   if (!dialogResult) event.preventDefault()
+  // })
 
   mainWindow.on('closed', () => {
     mainWindow = null
+  })
+
+  mainWindow.on('maximize', () => {
+    mainWindow?.webContents.send('window:on-maximize')
+  })
+  mainWindow.on('unmaximize', () => {
+    mainWindow?.webContents.send('window:on-unmaximize')
   })
 }
 
@@ -91,6 +99,28 @@ const readyFunction = (): void => {
   })
 
   // ipc functions
+  ipcMain.on('window:minimize', () => {
+    mainWindow?.minimize()
+  })
+  ipcMain.on('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+      mainWindow?.unmaximize()
+      return
+    }
+    mainWindow?.maximize()
+  })
+  ipcMain.on('window:close', () => {
+    const dialogResult = promptDialog('Are you sure you want to quit?')
+    // if user chose no, do not close
+    if (!dialogResult) return
+
+    mainWindow?.close()
+  })
+
+  customHandle('window:is-maximized', () => {
+    return mainWindow?.isMaximized()
+  })
+
   customHandle('choose-directory', chooseDirectory)
   customHandle('get-sub-directories', getSubDirectories)
   customHandle('get-pdf-list', getPdfList)

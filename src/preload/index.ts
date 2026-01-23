@@ -4,6 +4,18 @@ import type { PathFullPath, User, UserLastPlayed } from '../shared/types'
 
 // Custom APIs for renderer
 export const api = {
+  windowMinimize: (): void => ipcRenderer.send('window:minimize'),
+  windowMaximize: (): void => ipcRenderer.send('window:maximize'),
+  windowClose: (): void => ipcRenderer.send('window:close'),
+  isMaximized: (): Promise<boolean> => ipcRenderer.invoke('window:is-maximized'),
+
+  onMaximize: (callback: () => void) => ipcRenderer.on('window:on-maximize', callback),
+  onUnmaximize: (callback: () => void) => ipcRenderer.on('window:on-unmaximize', callback),
+  removeMaximizeListeners: () => {
+    ipcRenderer.removeAllListeners('window:on-maximize')
+    ipcRenderer.removeAllListeners('window:on-unmaximize')
+  },
+
   chooseDirectory: async (): Promise<string | null> => ipcRenderer.invoke('choose-directory'),
   getSubDirectories: async (parentDirectory: string): Promise<PathFullPath[] | null> =>
     ipcRenderer.invoke('get-sub-directories', parentDirectory),
