@@ -68,10 +68,10 @@ function App(): React.JSX.Element {
   const stdContainerClasses = 'h-full p-2 flex flex-col bg-gray-300 shadow-md ring-1 min-w-0'
   const stdBtnClasses = 'cursor-pointer flex-1 not-lg:py-6 bg-black text-white whitespace-normal'
   return (
-    <div className="h-screen flex flex-col divide-y bg-gray-100">
+    <div className="h-screen flex flex-col bg-gray-100">
       <div
         className="h-9 flex justify-between bg-neutral-800 text-white"
-        style={{ '-webkit-app-region': 'drag' } as CSSProperties}
+        style={{ WebkitAppRegion: 'drag' } as CSSProperties}
       >
         <div
           className="px-2 py-2 flex gap-x-2 items-center"
@@ -82,7 +82,7 @@ function App(): React.JSX.Element {
         </div>
         <div
           className="px-2 h-full flex gap-2"
-          style={{ '-webkit-app-region': 'no-drag' } as CSSProperties}
+          style={{ WebkitAppRegion: 'no-drag' } as CSSProperties}
         >
           <button className="px-2 rounded-md hover:bg-neutral-400" onClick={handleWindowMinimize}>
             <i className="fa-solid fa-window-minimize" />
@@ -99,7 +99,7 @@ function App(): React.JSX.Element {
           </button>
         </div>
       </div>
-      <div className="h-full w-full p-2 flex items-center justify-center">
+      <div className="flex-1 min-h-0 w-full p-2 flex items-center justify-center">
         {/* two outer containers to center the gray areas*/}
         <div className="h-full w-full max-w-270 flex">
           {/* left parent */}
