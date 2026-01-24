@@ -16,8 +16,12 @@ function errorDialog(msg: string): void {
   })
 }
 
+export function showFile(fullPath: string): void {
+  shell.showItemInFolder(fullPath)
+}
+
 // returns true if "yes"
-export const promptDialog = (msg: string): boolean => {
+export function promptDialog(msg: string): boolean {
   const dialogResult = dialog.showMessageBoxSync({
     message: msg,
 

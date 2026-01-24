@@ -16,6 +16,8 @@ export const api = {
     ipcRenderer.removeAllListeners('window:on-unmaximize')
   },
 
+  showFile: (fullPath: string): void => ipcRenderer.send('show-file', fullPath),
+
   chooseDirectory: async (): Promise<string | null> => ipcRenderer.invoke('choose-directory'),
   getSubDirectories: async (parentDirectory: string): Promise<PathFullPath[] | null> =>
     ipcRenderer.invoke('get-sub-directories', parentDirectory),

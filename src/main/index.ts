@@ -12,9 +12,10 @@ import {
   dbGetUserLastPlayed,
   dbSaveUserLastPlayed,
   renameFile,
-  deleteFile
+  deleteFile,
+  showFile
 } from './main'
-import { customHandle } from './tools'
+import { customHandle, customOn } from './tools'
 import { registerPdfProtocol } from './pdf'
 import { initAutoUpdate } from './autoUpdate'
 import { loadRuntimeEnv } from './env'
@@ -99,17 +100,17 @@ const readyFunction = (): void => {
   })
 
   // ipc functions
-  ipcMain.on('window:minimize', () => {
+  customOn('window:minimize', () => {
     mainWindow?.minimize()
   })
-  ipcMain.on('window:maximize', () => {
+  customOn('window:maximize', () => {
     if (mainWindow?.isMaximized()) {
       mainWindow?.unmaximize()
       return
     }
     mainWindow?.maximize()
   })
-  ipcMain.on('window:close', () => {
+  customOn('window:close', () => {
     const dialogResult = promptDialog('Are you sure you want to quit?')
     // if user chose no, do not close
     if (!dialogResult) return
@@ -120,6 +121,8 @@ const readyFunction = (): void => {
   customHandle('window:is-maximized', () => {
     return mainWindow?.isMaximized()
   })
+
+  customOn('show-file', showFile)
 
   customHandle('choose-directory', chooseDirectory)
   customHandle('get-sub-directories', getSubDirectories)

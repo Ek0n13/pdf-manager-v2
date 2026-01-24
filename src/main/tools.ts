@@ -7,6 +7,10 @@ export function customHandle<Args extends unknown[], R>(channel: string, fn: Fn<
   ipcMain.handle(channel, (_event: IpcMainInvokeEvent, ...args: Args) => fn(...args))
 }
 
+export function customOn<Args extends unknown[], R>(channel: string, fn: Fn<Args, R>): void {
+  ipcMain.on(channel, (_event: IpcMainInvokeEvent, ...args: Args) => fn(...args))
+}
+
 type Result<T, E = unknown> = readonly [data: T, error: null] | readonly [data: null, error: E]
 
 export async function tryCatch<T, E = unknown>(fn: () => T | Promise<T>): Promise<Result<T, E>> {
