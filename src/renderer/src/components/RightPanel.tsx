@@ -1,27 +1,21 @@
 import type { PathFullPath } from '@shared/types'
 import { useCallback, useRef, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
-import { User } from '@shared/types'
-import { Spinner } from './ui/spinner'
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from './ui/input-group'
-import { Button } from './ui/button'
 import ScrollAreaCustom from './ScrollAreaCustom'
 import PdfDialog from './PdfDialog'
 import RenameFunc from './RenameFunc'
+import UserListDialog from './UserListDialog'
 
 function RightPanel({
   parentDir,
   pdfList,
+  dialogContainer,
   reloadPdfList
 }: {
   parentDir: string
   pdfList: PathFullPath[]
+  dialogContainer?: React.RefObject<HTMLDivElement | null>
   reloadPdfList: () => Promise<void>
 }): React.JSX.Element {
-  const [userList, setUserList] = useState<User[] | null>(null)
-  const [userDialogOpen, setUserDialogOpen] = useState<boolean>(false)
-  const [loadingUserList, setLoadingUserList] = useState<boolean>(true)
-
   const [currentUserId, setCurrentUserId] = useState<number>(-1)
   const [currentUserLastPlayed, setCurrentUserLastPlayed] = useState<string>('<none>')
 
@@ -29,23 +23,6 @@ function RightPanel({
 
   const pdfRefs = useRef(new Map<string, HTMLDivElement>())
   const removeHighlightFired = useRef<boolean>(false)
-
-  const handleDbGetUsers = useCallback(async () => {
-    const response = await window.api.dbGetUsers()
-    setUserList(response)
-
-    setLoadingUserList(false)
-  }, [])
-
-  const handleDbGetUserLastPlayed = useCallback(async (userId: number) => {
-    setLoadingUserList(true)
-    const userLastPlayed = await window.api.dbGetUserLastPlayed(userId)
-    if (userLastPlayed) {
-      setCurrentUserLastPlayed(userLastPlayed.LAST_PLAYED)
-      setCurrentUserId(userLastPlayed.ID)
-    }
-    setUserDialogOpen(false)
-  }, [])
 
   const handleSaveUserLastPlayed = useCallback(
     async (lastPlayed: string) => {
@@ -71,17 +48,6 @@ function RightPanel({
       }
     },
     [reloadPdfList]
-  )
-
-  const handleDialogOpen = useCallback(
-    async (open: boolean) => {
-      setUserDialogOpen(open)
-      if (open) {
-        setLoadingUserList(true)
-        handleDbGetUsers()
-      }
-    },
-    [handleDbGetUsers]
   )
 
   const handleScrollToElement = useCallback(() => {
@@ -137,55 +103,11 @@ function RightPanel({
             </pre>
           </div>
           <div className="px-2 items-center">
-            <Dialog open={userDialogOpen} onOpenChange={handleDialogOpen}>
-              <DialogTrigger asChild>
-                <button
-                  type="button"
-                  className="cursor-pointer text-blue-600 text-shadow-xs hover:text-blue-500"
-                >
-                  <i className="fa-solid fa-download" />
-                </button>
-              </DialogTrigger>
-
-              <DialogContent className="bg-gray-200 **:data-[slot=dialog-close]:hidden">
-                <DialogHeader>
-                  <DialogTitle>User List</DialogTitle>
-                </DialogHeader>
-                {loadingUserList && (
-                  <div className="flex justify-center">
-                    <Spinner className="size-6" />
-                  </div>
-                )}
-                {!loadingUserList && (
-                  <div className="flex flex-col gap-2 items-center">
-                    <InputGroup className="bg-white">
-                      <InputGroupInput placeholder="Enter username to add..." />
-                      <InputGroupAddon align="inline-end">
-                        <InputGroupButton
-                          variant="default"
-                          className="cursor-pointer rounded-md text-white bg-black"
-                          disabled={true}
-                        >
-                          Add User
-                        </InputGroupButton>
-                      </InputGroupAddon>
-                    </InputGroup>
-                    <ScrollAreaCustom className="max-h-80 w-full overflow-hidden">
-                      {userList?.map((user) => (
-                        <div key={user.ID} className="min-w-0 truncate">
-                          <Button
-                            className="p-0 cursor-pointer text-md font-bold text-blue-600 text-shadow-xs hover:text-blue-500"
-                            onClick={() => handleDbGetUserLastPlayed(user.ID)}
-                          >
-                            {user.NAME}
-                          </Button>
-                        </div>
-                      ))}
-                    </ScrollAreaCustom>
-                  </div>
-                )}
-              </DialogContent>
-            </Dialog>
+            <UserListDialog
+              dialogContainer={dialogContainer}
+              setCurrentUserId={setCurrentUserId}
+              setCurrentUserLastPlayed={setCurrentUserLastPlayed}
+            />
           </div>
         </div>
       </div>
@@ -207,6 +129,7 @@ function RightPanel({
               <PdfDialog
                 fileName={dir.path}
                 filePath={dir.fullPath}
+                dialogContainer={dialogContainer}
                 pdfBtnOnClick={() => {
                   handlePdfBtnClicked(dir.path)
                 }}

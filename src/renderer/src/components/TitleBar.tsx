@@ -28,7 +28,8 @@ function TitleBar(): React.JSX.Element {
 
   return (
     <div
-      className="h-8 flex justify-between bg-neutral-800 text-white"
+      data-titlebar="true"
+      className="relative h-8 flex justify-between bg-neutral-800 text-white z-9999"
       style={{ WebkitAppRegion: 'drag' } as CSSProperties}
     >
       <div
@@ -38,7 +39,10 @@ function TitleBar(): React.JSX.Element {
         <img src={icon} className="w-5 h-5" />
         <span>PDF Manager v2</span>
       </div>
-      <div className="h-full flex" style={{ WebkitAppRegion: 'no-drag' } as CSSProperties}>
+      <div
+        className="h-full flex pointer-events-auto"
+        style={{ WebkitAppRegion: 'no-drag' } as CSSProperties}
+      >
         <button className="px-3 hover:bg-neutral-400" onClick={handleWindowMinimize}>
           <i className="fa-solid fa-window-minimize" />
         </button>

@@ -12,21 +12,19 @@ import { MouseEventHandler, useCallback, useMemo } from 'react'
 function PdfDialog({
   filePath,
   fileName,
+  dialogContainer,
   pdfBtnOnClick,
   ...props
 }: {
   filePath: string
   fileName: string
+  dialogContainer?: React.RefObject<HTMLDivElement | null>
   pdfBtnOnClick?: MouseEventHandler<HTMLButtonElement>
 } & React.ComponentProps<typeof Dialog>): React.JSX.Element {
   const pdfUrl = useMemo(() => `app-pdf://local?path=${encodeURIComponent(filePath)}`, [filePath])
 
   const handleShowFile = useCallback((fullPath: string) => {
     window.api.showFile(fullPath)
-  }, [])
-
-  const handleWindowMinimize = useCallback(() => {
-    window.api.windowMinimize()
   }, [])
 
   const handleYtSearchFilename = useCallback(async (fullPath: string) => {
@@ -46,8 +44,13 @@ function PdfDialog({
       </DialogTrigger>
 
       <DialogContent
-        className="h-[98vh] min-w-[98vw] p-0 gap-0 flex flex-col overflow-hidden bg-gray-200 **:data-[slot=dialog-close]:cursor-pointer"
+        className="h-[99%] min-w-[99%] p-0 gap-0 flex flex-col overflow-hidden bg-gray-200 **:data-[slot=dialog-close]:cursor-pointer"
         showCloseButton={false}
+        container={dialogContainer?.current}
+        onInteractOutside={(e) => {
+          const target = e.target as HTMLElement
+          if (target.closest('[data-titlebar="true"]')) e.preventDefault()
+        }}
       >
         <DialogHeader className="border-b-2">
           <div className="flex justify-between">
@@ -68,13 +71,6 @@ function PdfDialog({
               </button>
             </div>
             <div className="flex items-center">
-              <button
-                type="button"
-                className="cursor-pointer py-2 px-4 hover:bg-neutral-400"
-                onClick={handleWindowMinimize}
-              >
-                <i className="fa-solid fa-window-minimize" />
-              </button>
               <DialogClose className="py-2 px-4 hover:bg-red-400">
                 <i className="fa-solid fa-xmark" />
               </DialogClose>

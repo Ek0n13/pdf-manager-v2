@@ -1,6 +1,6 @@
 // import Versions from './components/Versions'
 // import electronLogo from './assets/electron.svg'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Button } from './components/ui/button'
 import ScrollAreaCustom from './components/ScrollAreaCustom'
 import RightPanel from './components/RightPanel'
@@ -12,6 +12,8 @@ function App(): React.JSX.Element {
   const [currentSubDirectories, setCurrentSubDirectories] = useState<PathFullPath[]>([])
   const [currentPdfDirectory, setCurrentPdfDirectory] = useState<string>('')
   const [currentPdfList, setCurrentPdfList] = useState<PathFullPath[]>([])
+
+  const nonTitleBarArea = useRef<HTMLDivElement>(null)
 
   const handleChooseDirectory = useCallback(async () => {
     const dir = await window.api.chooseDirectory()
@@ -46,7 +48,10 @@ function App(): React.JSX.Element {
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <TitleBar />
-      <div className="flex-1 min-h-0 w-full p-2 flex items-center justify-center">
+      <div
+        ref={nonTitleBarArea}
+        className="relative flex-1 min-h-0 w-full p-2 flex items-center justify-center"
+      >
         {/* two outer containers to center the gray areas*/}
         <div className="h-full w-full max-w-270 flex">
           {/* left parent */}
@@ -90,6 +95,7 @@ function App(): React.JSX.Element {
                 parentDir={currentParentDirectory}
                 pdfList={currentPdfList}
                 reloadPdfList={reloadPdfList}
+                dialogContainer={nonTitleBarArea}
               />
             )}
           </div>
