@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import type { PathFullPath, User, UserLastPlayed } from '../shared/types'
-import type { EffectUser } from '../main/oracleapi-effect/barrel'
+// import type { EffectUser } from '../main/oracleapi-effect/barrel'
 
 // Custom APIs for renderer
 export const api = {
@@ -33,8 +33,8 @@ export const api = {
     ipcRenderer.invoke('file:rename', oldFilePath, newFileName),
   deleteFile: async (pathFullPath: PathFullPath): Promise<boolean> =>
     ipcRenderer.invoke('file:delete', pathFullPath),
-  // dbGetUsers: async (): Promise<User[] | null> => ipcRenderer.invoke('db:get-users'),
-  dbGetUsers: async (): Promise<EffectUser[] | null> => ipcRenderer.invoke('db:get-users'),
+  dbGetUsers: async (): Promise<User[] | null> => ipcRenderer.invoke('db:get-users'),
+  // dbGetUsers: async (): Promise<EffectUser[] | null> => ipcRenderer.invoke('db:get-users'),
   dbGetUserLastPlayed: async (userId: User['ID']): Promise<UserLastPlayed | null> =>
     ipcRenderer.invoke('db:get-user-last-played', userId),
   dbSaveUserLastPlayed: async (
