@@ -66,6 +66,10 @@ function RenameFunc({
                   handleRenameFile()
                 }
               }}
+              onContextMenu={(e) => {
+                e.preventDefault()
+                window.api.ctxMenuRenameInput()
+              }}
             />
             <InputGroupAddon align="inline-end">
               <InputGroupButton

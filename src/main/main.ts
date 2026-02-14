@@ -6,6 +6,7 @@ import { tryCatch } from './tools'
 import type { PathFullPath, User, UserLastPlayed } from '../shared/types'
 import { getUserLastPlayed, getUsers, saveUserLastPlayed } from './oracledb'
 import { exec } from 'child_process'
+import { runFetchUsers } from './oracleapi-effect/getUsers'
 
 function errorDialog(msg: string): void {
   dialog.showMessageBoxSync({
@@ -196,6 +197,17 @@ export async function dbGetUsers(): Promise<User[] | null> {
     errorDialog(`${error}`)
     return null
   }
+}
+
+export async function dbFetchUsers() {
+  const response = await runFetchUsers()
+
+  if (!response.ok) {
+    errorDialog(`${response.cause}`)
+    return null
+  }
+
+  return response.value
 }
 
 export async function dbGetUserLastPlayed(userId: User['ID']): Promise<UserLastPlayed | null> {

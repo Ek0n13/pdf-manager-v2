@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -7,13 +7,14 @@ import {
   chooseDirectory,
   getPdfList,
   getSubDirectories,
-  dbGetUsers,
   ytSearchFilename,
   dbGetUserLastPlayed,
   dbSaveUserLastPlayed,
   renameFile,
   deleteFile,
-  showFile
+  showFile,
+  dbGetUsers
+  // dbFetchUsers
 } from './main'
 import { customHandle, customOn } from './tools'
 import { registerPdfProtocol } from './pdf'
@@ -93,6 +94,13 @@ const readyFunction = (): void => {
   createWindow()
   initAutoUpdate()
 
+  const basicCtxMenu = Menu.buildFromTemplate([
+    { role: 'copy' },
+    { role: 'cut' },
+    { role: 'paste' },
+    { role: 'selectAll' }
+  ])
+
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -100,6 +108,10 @@ const readyFunction = (): void => {
   })
 
   // ipc functions
+  customOn('ctx-menu:rename-input', () => {
+    basicCtxMenu.popup()
+  })
+
   customOn('window:minimize', () => {
     mainWindow?.minimize()
   })
@@ -132,6 +144,7 @@ const readyFunction = (): void => {
   customHandle('file:rename', renameFile)
   customHandle('file:delete', deleteFile)
   customHandle('db:get-users', dbGetUsers)
+  // customHandle('db:get-users', dbFetchUsers)
   customHandle('db:get-user-last-played', dbGetUserLastPlayed)
   customHandle('db:save-user-last-played', dbSaveUserLastPlayed)
 }

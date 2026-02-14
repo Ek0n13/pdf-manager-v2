@@ -1,6 +1,6 @@
 {
   "name": "pdf-manager-v2",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "repository": {
     "type": "git",
     "url": "https://github.com/Ek0n13/pdf-manager-v2.git"
@@ -26,6 +26,7 @@
     "build:linux": "electron-vite build && electron-builder --linux"
   },
   "dependencies": {
+    "@effect/platform": "^0.94.2",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@fortawesome/fontawesome-free": "^7.1.0",
@@ -39,6 +40,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
+    "effect": "^3.19.15",
     "electron-log": "^5.4.3",
     "electron-updater": "^6.3.9",
     "lucide-react": "^0.562.0",
