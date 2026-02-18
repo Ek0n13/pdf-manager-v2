@@ -57,12 +57,6 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  // mainWindow.on('close', (event) => {
-  //   const dialogResult = promptDialog('Are you sure you want to quit?')
-  //   // if user chose no, do not close
-  //   if (!dialogResult) event.preventDefault()
-  // })
-
   mainWindow.on('closed', () => {
     mainWindow = null
   })
