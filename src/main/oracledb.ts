@@ -1,6 +1,52 @@
 import { BIND_IN, getConnection, NUMBER, OUT_FORMAT_OBJECT, STRING } from 'oracledb'
 import type { Connection, Result } from 'oracledb'
-import { User, UserLastPlayed } from '../shared/types'
+import { User, UserLastPlayed, UsersApiResponseSchema } from '../shared/types'
+
+// =======================
+// ----- START OF: API -----
+// =======================
+
+function getApiHeaders(): HeadersInit {
+  const apiKey = process.env['API_KEY']
+  const clientId = process.env['CF_ACCESS_CLIENT_ID']
+  const clientSecret = process.env['CF_ACCESS_CLIENT_SECRET']
+
+  if (!apiKey) throw new Error('API_KEY is missing')
+  if (!clientId) throw new Error('CF_ACCESS_CLIENT_ID is missing')
+  if (!clientSecret) throw new Error('CF_ACCESS_CLIENT_SECRET is missing')
+
+  return {
+    Accept: 'application/json',
+    Authorization: `Bearer ${apiKey}`,
+    'CF-Access-Client-Id': clientId,
+    'CF-Access-Client-Secret': clientSecret
+  }
+}
+
+export async function getUsersApi(): Promise<User[]> {
+  const endpoint = 'https://pdf-manager-api.alexekon.cc/protected/users'
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: getApiHeaders()
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`)
+  }
+
+  const body: unknown = await response.json()
+  const userApi = UsersApiResponseSchema.safeParse(body)
+  if (!userApi.success) {
+    throw new Error(userApi.error.message)
+  }
+
+  return userApi.data.response
+}
+
+// =======================
+// ----- END OF: API -----
+// =======================
 
 async function oracleConnection(): Promise<Connection> {
   return await getConnection({

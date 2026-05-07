@@ -4,7 +4,7 @@ import { statSync, existsSync } from 'fs'
 import { dirname, extname, format, join, parse } from 'path'
 import { tryCatch } from './tools'
 import type { PathFullPath, User, UserLastPlayed } from '../shared/types'
-import { getUserLastPlayed, getUsers, saveUserLastPlayed } from './oracledb'
+import { getUserLastPlayed, getUsersApi, saveUserLastPlayed } from './oracledb'
 import { exec } from 'child_process'
 import { runFetchUsers } from './oracleapi-effect/getUsers'
 
@@ -189,7 +189,8 @@ export async function deleteFile(pathFullPath: PathFullPath): Promise<boolean> {
 
 export async function dbGetUsers(): Promise<User[] | null> {
   try {
-    const [data, error] = await tryCatch(() => getUsers())
+    // const [data, error] = await tryCatch(() => getUsers())
+    const [data, error] = await tryCatch(() => getUsersApi())
     if (error) throw new Error(`${error}`)
 
     return data
