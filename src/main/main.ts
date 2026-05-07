@@ -4,7 +4,14 @@ import { statSync, existsSync } from 'fs'
 import { dirname, extname, format, join, parse } from 'path'
 import { tryCatch } from './tools'
 import type { PathFullPath, User, UserLastPlayed } from '../shared/types'
-import { getUserLastPlayed, getUsersApi, saveUserLastPlayed } from './oracledb'
+import {
+  // getUserLastPlayed,
+  getUserLastPlayedApi,
+  // getUsers,
+  getUsersApi,
+  // saveUserLastPlayed,
+  saveUserLastPlayedApi
+} from './oracledb'
 import { exec } from 'child_process'
 import { runFetchUsers } from './oracleapi-effect/getUsers'
 
@@ -213,7 +220,8 @@ export async function dbFetchUsers() {
 
 export async function dbGetUserLastPlayed(userId: User['ID']): Promise<UserLastPlayed | null> {
   try {
-    const [data, error] = await tryCatch(() => getUserLastPlayed(userId))
+    // const [data, error] = await tryCatch(() => getUserLastPlayed(userId))
+    const [data, error] = await tryCatch(() => getUserLastPlayedApi(userId))
     if (error) throw new Error(`${error}`)
 
     return data
@@ -231,7 +239,8 @@ export async function dbSaveUserLastPlayed(
     const result = promptDialog('Save last played?')
     if (!result) return false
 
-    await saveUserLastPlayed(userId, lastPlayed)
+    // await saveUserLastPlayed(userId, lastPlayed)
+    await saveUserLastPlayedApi(userId, lastPlayed)
     return true
   } catch (error) {
     errorDialog(`${error}`)

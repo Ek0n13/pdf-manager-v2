@@ -1,6 +1,11 @@
 import { BIND_IN, getConnection, NUMBER, OUT_FORMAT_OBJECT, STRING } from 'oracledb'
 import type { Connection, Result } from 'oracledb'
-import { User, UserLastPlayed, UsersApiResponseSchema } from '../shared/types'
+import {
+  User,
+  UserApiLastPlayedResponseSchema,
+  UserLastPlayed,
+  UsersApiResponseSchema
+} from '../shared/types'
 
 // =======================
 // ----- START OF: API -----
@@ -42,6 +47,50 @@ export async function getUsersApi(): Promise<User[]> {
   }
 
   return userApi.data.response
+}
+
+export async function getUserLastPlayedApi(userId: User['ID']): Promise<UserLastPlayed | null> {
+  const endpoint = `https://pdf-manager-api.alexekon.cc/protected/users/${userId}/last-played`
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: getApiHeaders()
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`)
+  }
+
+  const body: unknown = await response.json()
+  const userLastPlayedApi = UserApiLastPlayedResponseSchema.safeParse(body)
+  if (!userLastPlayedApi.success) {
+    throw new Error(userLastPlayedApi.error.message)
+  }
+
+  return userLastPlayedApi.data.response[0]
+}
+
+export async function saveUserLastPlayedApi(
+  userId: User['ID'],
+  lastPlayed: UserLastPlayed['LAST_PLAYED']
+): Promise<void> {
+  const endpoint = `https://pdf-manager-api.alexekon.cc/protected/users/${userId}/last-played`
+
+  const payload = JSON.stringify({
+    lastPlayed: lastPlayed
+  })
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      ...getApiHeaders(),
+      'Content-Type': 'application/json'
+    },
+    body: payload
+  })
+
+  if (!response.ok) {
+    throw new Error('User last played not saved')
+  }
 }
 
 // =======================

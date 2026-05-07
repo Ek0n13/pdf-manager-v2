@@ -5,6 +5,7 @@ export type PathFullPath = {
   fullPath: string
 }
 
+// User
 export const UserSchema = z.object({
   ID: z.number(),
   NAME: z.string(),
@@ -21,7 +22,17 @@ export const UsersApiResponseSchema = z.object({
 
 export type UsersApiResponse = z.infer<typeof UsersApiResponseSchema>
 
-export type UserLastPlayed = {
-  LAST_PLAYED: string
-  ID: number
-}
+// User Last Played
+export const UserLastPlayedSchema = z.object({
+  LAST_PLAYED: z.string(),
+  ID: z.number()
+})
+
+export type UserLastPlayed = z.infer<typeof UserLastPlayedSchema>
+
+export const UserApiLastPlayedResponseSchema = z.object({
+  ok: z.boolean(),
+  response: z.array(UserLastPlayedSchema)
+})
+
+export type UserApiLastPlayedResponse = z.infer<typeof UserApiLastPlayedResponseSchema>
