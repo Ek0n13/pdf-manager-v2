@@ -36,6 +36,10 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
+      // nodeIntegration: false,
+      // contextIsolation: true,
+      // sandbox: true
+      // autoplayPolicy: 'no-user-gesture-required'
     }
   })
 
