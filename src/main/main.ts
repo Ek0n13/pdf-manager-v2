@@ -5,6 +5,8 @@ import { dirname, extname, format, join, parse } from 'path'
 import { tryCatch } from './tools'
 import type { PathFullPath, User, UserLastPlayed } from '../shared/types'
 import {
+  addUserApi,
+  deleteUserApi,
   // getUserLastPlayed,
   getUserLastPlayedApi,
   // getUsers,
@@ -245,5 +247,24 @@ export async function dbSaveUserLastPlayed(
   } catch (error) {
     errorDialog(`${error}`)
     return false
+  }
+}
+
+export async function dbAddUser(userName: User['NAME']): Promise<void> {
+  try {
+    await tryCatch(() => addUserApi(userName))
+  } catch (error) {
+    errorDialog(`${error}`)
+  }
+}
+
+export async function dbDeleteUser(userId: User['ID']): Promise<void> {
+  try {
+    const result = promptDialog('Are you sure you want to delete this user?')
+    if (!result) return
+
+    await tryCatch(() => deleteUserApi(userId))
+  } catch (error) {
+    errorDialog(`${error}`)
   }
 }

@@ -13,7 +13,9 @@ import {
   renameFile,
   deleteFile,
   showFile,
-  dbGetUsers
+  dbGetUsers,
+  dbAddUser,
+  dbDeleteUser
   // dbFetchUsers
 } from './main'
 import { customHandle, customOn } from './tools'
@@ -145,6 +147,8 @@ const readyFunction = (): void => {
   // customHandle('db:get-users', dbFetchUsers)
   customHandle('db:get-user-last-played', dbGetUserLastPlayed)
   customHandle('db:save-user-last-played', dbSaveUserLastPlayed)
+  customHandle('db:add-user', dbAddUser)
+  customHandle('db:delete-user', dbDeleteUser)
 }
 
 // 1. Request the lock

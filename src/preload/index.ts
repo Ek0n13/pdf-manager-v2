@@ -40,7 +40,11 @@ export const api = {
   dbSaveUserLastPlayed: async (
     userId: UserLastPlayed['ID'],
     lastPlayed: UserLastPlayed['LAST_PLAYED']
-  ): Promise<boolean> => ipcRenderer.invoke('db:save-user-last-played', userId, lastPlayed)
+  ): Promise<boolean> => ipcRenderer.invoke('db:save-user-last-played', userId, lastPlayed),
+  dbAddUser: async (userName: User['NAME']): Promise<boolean> =>
+    ipcRenderer.invoke('db:add-user', userName),
+  dbDeleteUser: async (userId: User['ID']): Promise<boolean> =>
+    ipcRenderer.invoke('db:delete-user', userId)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

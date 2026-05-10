@@ -11,6 +11,8 @@ import {
 // ----- START OF: API -----
 // =======================
 
+const baseUrl = 'https://pdf-manager-api.alexekon.cc/protected'
+
 function getApiHeaders(): HeadersInit {
   const apiKey = process.env['API_KEY']
   const clientId = process.env['CF_ACCESS_CLIENT_ID']
@@ -29,7 +31,7 @@ function getApiHeaders(): HeadersInit {
 }
 
 export async function getUsersApi(): Promise<User[]> {
-  const endpoint = 'https://pdf-manager-api.alexekon.cc/protected/users'
+  const endpoint = `${baseUrl}/users`
 
   const response = await fetch(endpoint, {
     method: 'GET',
@@ -50,7 +52,7 @@ export async function getUsersApi(): Promise<User[]> {
 }
 
 export async function getUserLastPlayedApi(userId: User['ID']): Promise<UserLastPlayed | null> {
-  const endpoint = `https://pdf-manager-api.alexekon.cc/protected/users/${userId}/last-played`
+  const endpoint = `${baseUrl}/users/${userId}/last-played`
 
   const response = await fetch(endpoint, {
     method: 'GET',
@@ -74,7 +76,7 @@ export async function saveUserLastPlayedApi(
   userId: User['ID'],
   lastPlayed: UserLastPlayed['LAST_PLAYED']
 ): Promise<void> {
-  const endpoint = `https://pdf-manager-api.alexekon.cc/protected/users/${userId}/last-played`
+  const endpoint = `${baseUrl}/users/${userId}/last-played`
 
   const payload = JSON.stringify({
     lastPlayed: lastPlayed
@@ -90,6 +92,39 @@ export async function saveUserLastPlayedApi(
 
   if (!response.ok) {
     throw new Error('User last played not saved')
+  }
+}
+
+export async function addUserApi(userName: User['NAME']): Promise<void> {
+  const endpoint = `${baseUrl}/users`
+
+  const payload = JSON.stringify({
+    userName: userName
+  })
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      ...getApiHeaders(),
+      'Content-Type': 'application/json'
+    },
+    body: payload
+  })
+
+  if (!response.ok) {
+    throw new Error('User not added')
+  }
+}
+
+export async function deleteUserApi(userId: User['ID']): Promise<void> {
+  const endpoint = `${baseUrl}/users/${userId}`
+
+  const response = await fetch(endpoint, {
+    method: 'DELETE',
+    headers: getApiHeaders()
+  })
+
+  if (!response.ok) {
+    throw new Error('User not deleted')
   }
 }
 

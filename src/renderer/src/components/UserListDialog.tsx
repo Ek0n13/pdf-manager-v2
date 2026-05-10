@@ -20,6 +20,12 @@ function UserListDialog({
   const [userList, setUserList] = useState<User[] | null>(null)
   const [loadingUserList, setLoadingUserList] = useState<boolean>(true)
 
+  const [newUserName, setNewUserName] = useState<string>('')
+
+  const handleNewUserNameChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewUserName(event.target.value)
+  }, [])
+
   const handleDbGetUsers = useCallback(async () => {
     const response = await window.api.dbGetUsers()
     setUserList(response)
@@ -49,6 +55,23 @@ function UserListDialog({
       setUserDialogOpen(false)
     },
     [setCurrentUserId, setCurrentUserLastPlayed]
+  )
+
+  const handleDbAddUser = useCallback(async () => {
+    setLoadingUserList(true)
+
+    await window.api.dbAddUser(newUserName)
+    handleDbGetUsers()
+  }, [newUserName, handleDbGetUsers])
+
+  const handleDbDeleteUser = useCallback(
+    async (userId: number) => {
+      setLoadingUserList(true)
+
+      await window.api.dbDeleteUser(userId)
+      handleDbGetUsers()
+    },
+    [handleDbGetUsers]
   )
 
   return (
@@ -86,12 +109,17 @@ function UserListDialog({
         {!loadingUserList && (
           <div className="flex flex-col gap-2 items-center">
             <InputGroup className="bg-white">
-              <InputGroupInput placeholder="Enter username to add..." />
+              <InputGroupInput
+                value={newUserName}
+                onChange={handleNewUserNameChange}
+                placeholder="Enter username to add..."
+              />
               <InputGroupAddon align="inline-end">
                 <InputGroupButton
                   variant="default"
                   className="cursor-pointer rounded-md text-white bg-black"
-                  disabled={true}
+                  disabled={!newUserName.trim()}
+                  onClick={handleDbAddUser}
                 >
                   Add User
                 </InputGroupButton>
@@ -99,13 +127,13 @@ function UserListDialog({
             </InputGroup>
             <ScrollAreaCustom className="max-h-80 w-full overflow-hidden">
               {userList?.map((user) => (
-                <div key={user.ID} className="min-w-0 truncate">
-                  <Button
-                    className="p-0 cursor-pointer text-md font-bold text-blue-600 text-shadow-xs hover:text-blue-500"
-                    onClick={() => handleDbGetUserLastPlayed(user.ID)}
-                  >
+                <div key={user.ID} className="min-w-0 truncate flex justify-between">
+                  <UserListButton onClick={() => handleDbGetUserLastPlayed(user.ID)}>
                     {user.NAME}
-                  </Button>
+                  </UserListButton>
+                  <UserListButton onClick={() => handleDbDeleteUser(user.ID)}>
+                    <i className="fa-solid fa-trash" />
+                  </UserListButton>
                 </div>
               ))}
             </ScrollAreaCustom>
@@ -113,6 +141,21 @@ function UserListDialog({
         )}
       </DialogContent>
     </Dialog>
+  )
+}
+
+function UserListButton({
+  children,
+  className,
+  ...props
+}: React.ComponentProps<typeof Button>): React.JSX.Element {
+  return (
+    <Button
+      className={`p-0 cursor-pointer text-md font-bold text-blue-600 text-shadow-xs hover:text-blue-500 ${className ?? ''}`}
+      {...props}
+    >
+      {children}
+    </Button>
   )
 }
 
