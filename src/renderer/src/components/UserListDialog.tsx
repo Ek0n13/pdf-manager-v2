@@ -57,19 +57,27 @@ function UserListDialog({
     [setCurrentUserId, setCurrentUserLastPlayed]
   )
 
-  const handleDbAddUser = useCallback(async () => {
-    setLoadingUserList(true)
+  const handleAddUserSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
 
-    await window.api.dbAddUser(newUserName)
-    handleDbGetUsers()
-  }, [newUserName, handleDbGetUsers])
+      setLoadingUserList(true)
+
+      await window.api.dbAddUser(newUserName)
+      handleDbGetUsers()
+      setNewUserName('')
+    },
+    [newUserName, handleDbGetUsers]
+  )
 
   const handleDbDeleteUser = useCallback(
     async (userId: number) => {
+      await window.api.dbDeleteUser(userId)
+
       setLoadingUserList(true)
 
-      await window.api.dbDeleteUser(userId)
       handleDbGetUsers()
+      setNewUserName('')
     },
     [handleDbGetUsers]
   )
@@ -108,27 +116,34 @@ function UserListDialog({
         )}
         {!loadingUserList && (
           <div className="flex flex-col gap-2 items-center">
-            <InputGroup className="bg-white">
-              <InputGroupInput
-                value={newUserName}
-                onChange={handleNewUserNameChange}
-                placeholder="Enter username to add..."
-              />
-              <InputGroupAddon align="inline-end">
-                <InputGroupButton
-                  variant="default"
-                  className="cursor-pointer rounded-md text-white bg-black"
-                  disabled={!newUserName.trim()}
-                  onClick={handleDbAddUser}
-                >
-                  Add User
-                </InputGroupButton>
-              </InputGroupAddon>
-            </InputGroup>
-            <ScrollAreaCustom className="max-h-80 w-full overflow-hidden">
+            <form className="w-full" onSubmit={handleAddUserSubmit}>
+              <InputGroup className="bg-white">
+                <InputGroupInput
+                  required
+                  pattern=".*\S.*"
+                  value={newUserName}
+                  onChange={handleNewUserNameChange}
+                  placeholder="Enter username to add..."
+                />
+                <InputGroupAddon align="inline-end" className="mr-0">
+                  <InputGroupButton
+                    type="submit"
+                    variant="default"
+                    className="cursor-pointer rounded-md text-white bg-black"
+                    disabled={!newUserName.trim()}
+                  >
+                    Add User
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
+            </form>
+            <ScrollAreaCustom className="pl-2 max-h-80 w-full overflow-hidden">
               {userList?.map((user) => (
-                <div key={user.ID} className="min-w-0 truncate flex justify-between">
-                  <UserListButton onClick={() => handleDbGetUserLastPlayed(user.ID)}>
+                <div key={user.ID} className="flex min-w-0 justify-between">
+                  <UserListButton
+                    className="min-w-0 truncate"
+                    onClick={() => handleDbGetUserLastPlayed(user.ID)}
+                  >
                     {user.NAME}
                   </UserListButton>
                   <UserListButton onClick={() => handleDbDeleteUser(user.ID)}>
