@@ -19,6 +19,7 @@ export const api = {
   },
 
   showFile: (fullPath: string): void => ipcRenderer.send('show-file', fullPath),
+  setPdfOpen: (open: boolean): void => ipcRenderer.send('pdf:set-open', open),
 
   chooseDirectory: async (): Promise<string | null> => ipcRenderer.invoke('choose-directory'),
   getSubDirectories: async (parentDirectory: string): Promise<PathFullPath[] | null> =>

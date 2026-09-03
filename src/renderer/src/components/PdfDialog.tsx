@@ -7,13 +7,14 @@ import {
   DialogTitle,
   DialogTrigger
 } from './ui/dialog'
-import { MouseEventHandler, useCallback, useMemo } from 'react'
+import { MouseEventHandler, useCallback, useEffect, useMemo, useRef } from 'react'
 
 function PdfDialog({
   filePath,
   fileName,
   dialogContainer,
   pdfBtnOnClick,
+  onOpenChange,
   ...props
 }: {
   filePath: string
@@ -22,6 +23,23 @@ function PdfDialog({
   pdfBtnOnClick?: MouseEventHandler<HTMLButtonElement>
 } & React.ComponentProps<typeof Dialog>): React.JSX.Element {
   const pdfUrl = useMemo(() => `app-pdf://local?path=${encodeURIComponent(filePath)}`, [filePath])
+  const isOpenRef = useRef(false)
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      isOpenRef.current = open
+      window.api.setPdfOpen(open)
+      onOpenChange?.(open)
+    },
+    [onOpenChange]
+  )
+
+  useEffect(
+    () => () => {
+      if (isOpenRef.current) window.api.setPdfOpen(false)
+    },
+    []
+  )
 
   const handleShowFile = useCallback((fullPath: string) => {
     window.api.showFile(fullPath)
@@ -32,7 +50,7 @@ function PdfDialog({
   }, [])
 
   return (
-    <Dialog {...props}>
+    <Dialog {...props} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <button
           type="button"

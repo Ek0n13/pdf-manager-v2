@@ -24,6 +24,8 @@ import { initAutoUpdate } from './autoUpdate'
 import { loadRuntimeEnv } from './env'
 
 let mainWindow: BrowserWindow | null = null
+let isPdfOpen = false
+
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -51,8 +53,16 @@ function createWindow(): void {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
+    if (isPdfOpen) return { action: 'deny' }
+
     shell.openExternal(details.url)
     return { action: 'deny' }
+  })
+
+  mainWindow.webContents.on('will-navigate', (details) => {
+    const currentUrl = mainWindow?.webContents.getURL()
+
+    if (isPdfOpen && details.url !== currentUrl) details.preventDefault()
   })
 
   // HMR for renderer base on electron-vite cli.
@@ -64,6 +74,7 @@ function createWindow(): void {
   }
 
   mainWindow.on('closed', () => {
+    isPdfOpen = false
     mainWindow = null
   })
 
@@ -135,6 +146,9 @@ const readyFunction = (): void => {
   })
 
   customOn('show-file', showFile)
+  customOn('pdf:set-open', (open: boolean) => {
+    isPdfOpen = open
+  })
 
   customHandle('choose-directory', chooseDirectory)
   customHandle('get-sub-directories', getSubDirectories)
