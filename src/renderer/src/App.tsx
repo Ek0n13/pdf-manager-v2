@@ -71,7 +71,11 @@ function App(): React.JSX.Element {
             </div>
             {currentParentDirectory && (
               <div className="min-h-0 w-full flex-1 flex flex-col">
-                <pre className="m-1 p-2 border-2 rounded-md text-center text-lg font-bold line-clamp-1 bg-gray-50">{`Current Folder: ${currentParentDirectory?.split('\\').splice(-1)[0]}`}</pre>
+                <pre className="m-1 p-2 border-2 rounded-md text-center text-lg font-bold line-clamp-1 bg-gray-50">{`Current Folder: ${
+                  /^[A-Za-z]:\\$/.test(currentParentDirectory)
+                    ? currentParentDirectory
+                    : currentParentDirectory.split('\\').at(-1)
+                }`}</pre>
                 <ScrollAreaCustom className="h-full w-full p-2 flex-1 overflow-hidden">
                   {currentSubDirectories?.map((dir) => (
                     <div key={dir.fullPath} className="py-2 min-w-0 truncate">
