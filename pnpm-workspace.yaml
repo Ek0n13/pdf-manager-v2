@@ -1,0 +1,14 @@
+shamefullyHoist: true
+blockExoticSubdeps: true
+
+overrides:
+  pdfjs-dist: 5.4.296
+
+allowBuilds:
+  electron: true
+  electron-winstaller: true
+  esbuild: true
+  oracledb: true
+
+ignoredOptionalDependencies:
+  - msgpackr-extract
